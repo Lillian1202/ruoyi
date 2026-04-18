@@ -215,5 +215,5 @@ public interface ISysUserService
      */
     public String importUser(List<SysUser> userList, Boolean isUpdateSupport, String operName);
 
-    SysUser selectUserByRemark(String dingUserId);
+    SysUser selectUserByDingtalkUserId(String dingtalkUserId);
 }

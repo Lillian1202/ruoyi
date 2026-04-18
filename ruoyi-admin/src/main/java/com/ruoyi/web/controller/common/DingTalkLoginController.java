@@ -31,10 +31,8 @@ public class DingTalkLoginController {
         String code = params.get("code");
 
         try {
-            // 1. 获取 AccessToken (复用 Demo 逻辑)
             String accessToken = getAccessToken(clientId, clientSecret);
 
-            // 2. 获取钉钉 userId
             DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/topapi/v2/user/getuserinfo");
             OapiV2UserGetuserinfoRequest req = new OapiV2UserGetuserinfoRequest();
             req.setCode(code);
@@ -43,8 +41,21 @@ public class DingTalkLoginController {
             if (rsp.isSuccess()) {
                 String dingUserId = rsp.getResult().getUserid();
 
-                // 3. 调用若依登录逻辑（这一步我们下一步去实现）
-                String token = loginService.loginByDingUserId(dingUserId);
+                String dingNickName = "";
+                String dingMobile = "";
+                try {
+                    DingTalkClient userClient = new DefaultDingTalkClient("https://oapi.dingtalk.com/topapi/v2/user/get");
+                    com.dingtalk.api.request.OapiV2UserGetRequest userReq = new com.dingtalk.api.request.OapiV2UserGetRequest();
+                    userReq.setUserid(dingUserId);
+                    com.dingtalk.api.response.OapiV2UserGetResponse userRsp = userClient.execute(userReq, accessToken);
+                    if (userRsp.isSuccess()) {
+                        dingNickName = userRsp.getResult().getName();
+                        dingMobile = userRsp.getResult().getMobile();
+                    }
+                } catch (Exception ignored) {
+                }
+
+                String token = loginService.loginByDingUserId(dingUserId, dingNickName, dingMobile);
 
                 AjaxResult ajax = AjaxResult.success();
                 ajax.put(Constants.TOKEN, token);
@@ -56,7 +67,6 @@ public class DingTalkLoginController {
         }
     }
 
-    // 提取 Demo 中的 Token 获取逻辑
     private String getAccessToken(String clientId, String clientSecret) throws Exception {
         com.aliyun.teaopenapi.models.Config config = new com.aliyun.teaopenapi.models.Config();
         config.protocol = "https";
@@ -66,7 +76,7 @@ public class DingTalkLoginController {
                 .setClientId(clientId)
                 .setClientSecret(clientSecret)
                 .setGrantType("client_credentials");
-        GetTokenResponse response = client.getToken(getTokenRequest); // 简化版，通常内部应用不需要 corpId
+        GetTokenResponse response = client.getToken(getTokenRequest);
         return response.getBody().accessToken;
     }
 }

@@ -141,24 +141,29 @@ public class SysLoginService
     /**
      * 钉钉免密登录逻辑
      */
-    public String loginByDingUserId(String dingUserId) {
-        // 1. 从数据库查用户。我们约定：把钉钉 userId 存在 sys_user 表的 remark 字段里
-        SysUser user = userService.selectUserByRemark(dingUserId);
+    public String loginByDingUserId(String dingUserId, String dingNickName, String dingMobile) {
+        SysUser user = userService.selectUserByDingtalkUserId(dingUserId);
 
         if (user == null) {
-            throw new ServiceException("未找到匹配的系统用户，请联系管理员在备注中绑定ID: " + dingUserId);
+            user = new SysUser();
+            user.setDingtalkUserId(dingUserId);
+            user.setUserName(dingUserId);
+            user.setNickName(StringUtils.isNotEmpty(dingNickName) ? dingNickName : dingUserId);
+            user.setPhonenumber(StringUtils.isNotEmpty(dingMobile) ? dingMobile : "");
+            user.setPassword(com.ruoyi.common.utils.SecurityUtils.encryptBcrypt("ding@" + dingUserId));
+            user.setStatus("0");
+            user.setDelFlag("0");
+            user.setCreateBy("dingtalk");
+            userService.insertUser(user);
+            user = userService.selectUserByDingtalkUserId(dingUserId);
         }
 
-        // 2. 校验用户状态
         validateUser(user);
 
-        // 3. 参考原 login 方法，绕过身份验证直接生成 token
         LoginUser loginUser = createLoginUser(user);
 
-        // 4. 记录登录信息
         AsyncManager.me().execute(AsyncFactory.recordLogininfor(user.getUserName(), Constants.LOGIN_SUCCESS, MessageUtils.message("user.login.success")));
 
-        // 5. 生成 JWT Token
         return tokenService.createToken(loginUser);
     }
 

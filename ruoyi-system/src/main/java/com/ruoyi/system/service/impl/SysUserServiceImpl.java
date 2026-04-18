@@ -129,6 +129,12 @@ public class SysUserServiceImpl implements ISysUserService
         return userMapper.selectUserById(userId);
     }
 
+    @Override
+    public SysUser selectUserByDingtalkUserId(String dingtalkUserId)
+    {
+        return userMapper.selectUserByDingtalkUserId(dingtalkUserId);
+    }
+
     /**
      * 查询用户所属角色组
      * 

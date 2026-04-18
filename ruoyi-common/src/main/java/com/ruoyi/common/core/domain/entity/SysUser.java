@@ -62,6 +62,8 @@ public class SysUser extends BaseEntity
     /** 删除标志（0代表存在 2代表删除） */
     private String delFlag;
 
+    private String dingtalkUserId;
+
     /** 最后登录IP */
     @Excel(name = "最后登录IP", type = Type.EXPORT)
     private String loginIp;
@@ -230,6 +232,16 @@ public class SysUser extends BaseEntity
         this.delFlag = delFlag;
     }
 
+    public String getDingtalkUserId()
+    {
+        return dingtalkUserId;
+    }
+
+    public void setDingtalkUserId(String dingtalkUserId)
+    {
+        this.dingtalkUserId = dingtalkUserId;
+    }
+
     public String getLoginIp()
     {
         return loginIp;
@@ -324,6 +336,7 @@ public class SysUser extends BaseEntity
             .append("password", getPassword())
             .append("status", getStatus())
             .append("delFlag", getDelFlag())
+            .append("dingtalkUserId", getDingtalkUserId())
             .append("loginIp", getLoginIp())
             .append("loginDate", getLoginDate())
             .append("pwdUpdateDate", getPwdUpdateDate())
