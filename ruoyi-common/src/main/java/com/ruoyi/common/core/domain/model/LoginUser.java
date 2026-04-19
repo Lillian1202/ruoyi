@@ -264,6 +264,8 @@ public class LoginUser implements UserDetails
         return null;
     }
 
-    public void setUserid(Long userId) {
+    public void setUserid(Long userId)
+    {
+        this.userId = userId;
     }
 }

@@ -38,6 +38,7 @@ import com.ruoyi.system.service.ISysConfigService;
 import com.ruoyi.system.service.ISysUserService;
 
 import java.util.HashSet;
+import java.util.Set;
 
 
 /**
@@ -62,6 +63,9 @@ public class SysLoginService
 
     @Autowired
     private ISysConfigService configService;
+
+    @Autowired
+    private SysPermissionService permissionService;
 
     /**
      * 登录验证
@@ -180,9 +184,8 @@ public class SysLoginService
      * 创建登录用户信息
      */
     private LoginUser createLoginUser(SysUser user) {
-        LoginUser loginUser = new LoginUser();
-        loginUser.setUser(user);
-        // 若依标准逻辑：必须设置userId，否则后续生成Token会报错
+        Set<String> permissions = permissionService.getMenuPermission(user);
+        LoginUser loginUser = new LoginUser(user.getUserId(), user.getDeptId(), user, permissions);
         loginUser.setUserid(user.getUserId());
         return loginUser;
     }
